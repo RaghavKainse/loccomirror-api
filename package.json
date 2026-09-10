@@ -1,0 +1,32 @@
+{
+  "name": "loccomirror-backend",
+  "version": "1.0.0",
+  "description": "Node.js & MongoDB Authentication Backend for loccoMirror with Vercel Serverless Deployment",
+  "main": "api/index.js",
+  "scripts": {
+    "start": "node api/index.js",
+    "dev": "nodemon api/index.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  },
+  "keywords": [
+    "loccomirror",
+    "authentication",
+    "mongodb",
+    "express",
+    "vercel"
+  ],
+  "author": "loccoMirror Team",
+  "license": "MIT"
+}
