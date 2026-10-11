@@ -190,6 +190,70 @@ router.put('/profile', protect, async (req, res) => {
  * @desc    Healthcheck status indicator
  * @access  Public
  */
+/**
+ * @route   POST /api/auth/verify-database
+ * @route   GET /api/auth/verify-database
+ * @desc    Verify if a user exists in the MongoDB database; if not, triggers client logout
+ * @access  Public
+ */
+const handleVerifyDatabase = async (req, res) => {
+  try {
+    const email = req.body?.email || req.query?.email;
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        inDatabase: false,
+        message: 'Email address is required for database verification.',
+      });
+    }
+
+    const emailVal = validateEmail(email);
+    if (!emailVal.valid) {
+      return res.status(400).json({
+        success: false,
+        inDatabase: false,
+        message: 'Invalid email address provided.',
+      });
+    }
+
+    await connectToDatabase();
+    const user = await User.findOne({ email: emailVal.value });
+
+    if (!user || user.isActive === false) {
+      console.log(`[Auth API] User NOT in database: ${emailVal.value} -> Force logout requested.`);
+      return res.status(404).json({
+        success: false,
+        inDatabase: false,
+        shouldLogout: true,
+        message: 'User does not exist in database. Active session is unauthorized and must be logged out.',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      inDatabase: true,
+      shouldLogout: false,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        plan: user.plan,
+        avatar: user.avatar,
+      },
+    });
+  } catch (error) {
+    console.error('[Verify Database Error]:', error.message);
+    return res.status(500).json({
+      success: false,
+      inDatabase: false,
+      message: 'Failed to verify database records.',
+    });
+  }
+};
+
+router.post('/verify-database', handleVerifyDatabase);
+router.get('/verify-database', handleVerifyDatabase);
+
 router.get('/health', (req, res) => {
   res.status(200).json({
     status: 'online',
@@ -199,3 +263,4 @@ router.get('/health', (req, res) => {
 });
 
 module.exports = router;
+
